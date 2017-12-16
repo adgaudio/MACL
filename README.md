@@ -8,3 +8,5 @@ program them to have global knowledge or only local knowledge as you
 wish.
 
 A visualization for 2D environments is provided.
+
+![2014-10-22 11_35_09](/demo_video.gif)
