@@ -1,0 +1,55 @@
+version: '2.1'
+
+services:
+  # web:
+  #   build: ./web
+  #   ports:
+  #    - "5000:8080"
+  #   expose:
+  #    - "5001"
+  #   volumes:
+  #    - ./web/src:/app/src
+
+  engine:
+    build: ./engine
+    volumes:
+      - ./engine:/app/engine
+      - ./train:/app/train
+      - ./data:/app/data
+      - /tmp/.X11-unix/X0:/tmp/.X11-unix/X0
+    environment:
+      - DISPLAY
+      # - KERAS_BACKEND=theano
+
+  # docker-compose run --rm shell
+  # docker-compose run --rm shell -c 'run engine/examples.py'
+  # docker-compose run --rm shell -m engine.api.cartesian
+  shell:
+    extends: engine
+    entrypoint: ipython --matplotlib -i
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./data/.ipython:/home/alex/.ipython
+    # scale: 0
+    environment:
+      - QT_X11_NO_MITSHM=1
+
+
+  # docker-compose run --rm test
+  # docker-compose run --rm test --tb=line -ra
+  # docker-compose run --rm test -k test_Location_
+  test:
+    extends: engine
+    entrypoint: /app/test
+    # scale: 0
+
+  # docker-compose up notebook
+  # --> then, navigate browser to localhost:4444
+  notebook:
+    extends: engine
+    command: sh -c "jupyter notebook --no-browser --ip 0.0.0.0 --port 4444 --NotebookApp.token='' --debug"
+    ports:
+      - 4444:4444
+    volumes:
+      - .:/app/
